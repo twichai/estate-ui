@@ -390,9 +390,13 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
 
 interface ApplicationShell1Props {
   className?: string;
+  children: React.ReactNode;
 }
 
-export function ApplicationShell1({ className }: ApplicationShell1Props) {
+export function ApplicationShell1({
+  className,
+  children,
+}: React.PropsWithChildren<ApplicationShell1Props>) {
   return (
     <SidebarProvider className={cn(className)}>
       <AppSidebar />
@@ -426,7 +430,9 @@ export function ApplicationShell1({ className }: ApplicationShell1Props) {
           </Breadcrumb>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4">
-          <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
+          <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min">
+            {children}
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>
