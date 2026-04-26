@@ -21,6 +21,7 @@ import {
   Users,
 } from "lucide-react";
 import * as React from "react";
+import { useRouter } from "next/navigation";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -66,6 +67,12 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+
+const AUTH_COOKIE = "auth_user";
+
+function clearAuthCookie() {
+  document.cookie = `${AUTH_COOKIE}=; path=/; max-age=0`;
+}
 
 // Base nav item - used by simple sidebars
 type NavItem = {
@@ -289,6 +296,15 @@ const NavMenuItem = ({ item }: { item: NavItem }) => {
 };
 
 const NavUser = ({ user }: { user: UserData }) => {
+  const router = useRouter();
+
+  const handleLogout = () => {
+    fetch("/api/users/sign_out", { method: "DELETE" }).finally(() => {
+      clearAuthCookie();
+      router.push("/login");
+    });
+  };
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -347,7 +363,7 @@ const NavUser = ({ user }: { user: UserData }) => {
               Account
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 size-4" />
               Log out
             </DropdownMenuItem>
