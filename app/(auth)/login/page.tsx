@@ -8,7 +8,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
-import { authService, authCookies } from "@/lib/services/auth.service";
+
+const AUTH_COOKIE = "auth_user";
+
+function saveAuthCookie(user: object) {
+  document.cookie = `${AUTH_COOKIE}=${encodeURIComponent(JSON.stringify(user))}; path=/; SameSite=Lax`;
+}
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -36,10 +41,17 @@ export default function Login() {
 
   const onSubmit = (data: LoginSchemaType) => {
     setApiErrorMessage("");
-    authService
-      .login(data)
+    fetch("/api/users/sign_in", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user: data }),
+    })
       .then((res) => {
-        authCookies.save(res.user);
+        if (!res.ok) throw new Error("Invalid email or password.");
+        return res.json();
+      })
+      .then((res) => {
+        saveAuthCookie(res.user);
         router.push("/");
       })
       .catch((err: Error) => setApiErrorMessage(err.message));
